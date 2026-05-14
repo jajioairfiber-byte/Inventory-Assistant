@@ -1,0 +1,92 @@
+[
+  {
+    "category": "Inventory Issues",
+    "icon": "📦",
+    "question": "Excess inventory is visible in JPW",
+    "answer": "1. Check MB58\n2. Verify physical quantity\n3. Check issuance details\n4. Check consumption details\n\nNote:\nIf consumption has already been posted in ERP, the stock should not be visible in JPW.\nPlease coordinate with the JPW team to remove excess inventory after ERP analysis."
+  },
+  {
+    "category": "Inventory Issues",
+    "icon": "📦",
+    "question": "Excess inventory is visible in ERP",
+    "answer": "1. Check MB58\n2. Verify physical quantity\n3. Check issuance details (JPWP – IO/MO) and 631 movement\n4. Check consumption in ZTECH_REP (Consumption Flag should be X)\n5. If Consumption Flag is updated and inventory is still visible, check Z92 movement\n\nNote:\nIf consumption has not been posted, raise an OC request."
+  },
+  {
+    "category": "Device Issues",
+    "icon": "📡",
+    "question": "Device available in ERP and JPW but not physically available",
+    "answer": "1. Open ZTECH_REP\n2. Enter RSN number\n3. If no data found, check IQ03\n4. Enter Serial Number and Article\n5. Check last movement\n\nIf last movement is Z92:\n- Check movement document\n- Manual Z92 → Coordinate with Spares Team\n- Automatic Z92 → Check document header text\n\nIf last movement is 631:\n- Verify document details\n- 631 allowed only for IO/MO or manual CHP WO"
+  },
+  {
+    "category": "Device Issues",
+    "icon": "📡",
+    "question": "Serial number not assigned to technician",
+    "answer": "1. Check IQ03\n2. Enter Serial Number and Article\n3. Verify customer against return order partner\n4. If mismatch, WO completed by two partners\n5. Check Z92 and Z91 movements\n6. If adjustment not triggered, contact support team"
+  },
+  {
+    "category": "Return Issues",
+    "icon": "🔄",
+    "question": "Device returned to JP or JC but still visible in JPW",
+    "answer": "1. Check return order (JPWM)\n2. If not completed in ERP, complete via FIORI\n3. If completed, check Consumption Flag\n4. If Flag is X, verify IQ03 last movement"
+  },
+  {
+    "category": "Return Issues",
+    "icon": "🔄",
+    "question": "Device submitted but still visible in JPW",
+    "answer": "1. Check last movement in IQ03\n2. If submitted manually through 632, cancel document\n3. Devices must be submitted only through JPW return journey"
+  },
+  {
+    "category": "Partner Issues",
+    "icon": "👥",
+    "question": "Material is not being issued to partner",
+    "answer": "1. Check ZJIOCUSTMAP\n2. Enter Partner ID (R68 / R69)\n3. Verify onboarding journey\n4. Ensure Primary Flag is X\n5. Check open orders in JPW and ERP"
+  },
+  {
+    "category": "ERP Checks",
+    "icon": "🖥️",
+    "question": "How to check material open orders",
+    "answer": "1. Open ZTECH_REP\n2. Enter Partner ID\n3. Enter Order Status ASGN\n4. Enter Reference Number JPSS\n5. Execute"
+  },
+  {
+    "category": "ERP Checks",
+    "icon": "🖥️",
+    "question": "How to check work order and consumption details",
+    "answer": "1. Open ZTECH_REP\n2. Enter WO or ORN\n3. Check WO status and Consumption Flag"
+  },
+  {
+    "category": "Reconciliation",
+    "icon": "📊",
+    "question": "How to perform inventory reconciliation",
+    "answer": "1. Open MB51\n2. Enter Article / Site / Date Range\n3. Enter movement types 631,632,Z91 or 241\n4. Execute and download\n5. Open ZTECH_REP\n6. Enter Partner ID\n7. Download ASGN and COMP report\n8. Subtract consumption from issuance\n9. Remaining balance should be physically available"
+  },
+  {
+    "category": "Reference",
+    "icon": "📘",
+    "question": "Movement types meanings",
+    "answer": "631 → Issuance\n632 → Return\nZ91 → Consumption posting\nZ92 → Reversal / Adjustment"
+  },
+  {
+    "category": "ORN Issues",
+    "icon": "🏢",
+    "question": "ORN created but WO not generated",
+    "answer": "1. Open analytics.jio.com\n2. Open AirFiber P2B Journey\n3. Enter Building ID\n4. Complete pending order if available\n5. If issue persists contact THD"
+  },
+  {
+    "category": "O2A Issues",
+    "icon": "📨",
+    "question": "P2B completed but O2A not generated",
+    "answer": "1. Contact THD help desk\n2. Raise THD ticket\n3. Send BIM ticket to:\nJio.TopsFTTXO2A@ril.com\nJio.FTTXTHDAirFiber@ril.com"
+  },
+  {
+    "category": "Work Order",
+    "icon": "🛠️",
+    "question": "WO cancellation required",
+    "answer": "Contact OC or CSD team for cancellation"
+  },
+  {
+    "category": "Return Issues",
+    "icon": "🔄",
+    "question": "Serial number not visible in To Be Return tab",
+    "answer": "1. Verify serial in completed WO\n2. Check Consumption Flag\n3. If not updated, raise OC\n4. If updated, check IQ03 for Z92\n5. If Z92 posted, request JPW to add device\n\nValidate all steps before escalation"
+  }
+]

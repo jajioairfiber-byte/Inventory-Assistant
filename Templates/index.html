@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>JioAirFiber – Inventory Assistant</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+<style>
+
+:root {
+  --blue:#0052CC;
+  --blue2:#0A65D9;
+  --accent:#00C2FF;
+  --dark:#060D1A;
+  --panel:#0D1B2E;
+  --card:#112240;
+  --border:#1E3A5F;
+  --text:#E8F0FE;
+  --muted:#7A9BBF;
+  --white:#FFFFFF;
+  --green:#00E5A0;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  background:var(--dark);
+  font-family:'DM Sans',sans-serif;
+  color:var(--text);
+  height:100vh;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+
+/* Background Grid */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(0,194,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,194,255,0.04) 1px, transparent 1px);
+  background-size:40px 40px;
+  z-index:0;
+  pointer-events:none;
+}
+
+/* Header */
+header{
+  position:relative;
+  z-index:10;
+  background:rgba(13,27,46,0.92);
+  border-bottom:1px solid var(--border);
+  padding:14px 22px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.logo-ring{
+  width:48px;
+  height:48px;
+  border-radius:12px;
+  background:linear-gradient(135deg,var(--blue),var(--accent));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  box-shadow:0 0 18px rgba(0,194,255,0.35);
+}
+
+.header-text h1{
+  font-family:'Syne',sans-serif;
+  font-size:18px;
+  font-weight:800;
+}
+
+.header-text p{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.status-dot{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  color:var(--green);
+  font-size:13px;
+}
+
+.status-dot::before{
+  content:'';
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 8px var(--green);
+}
+
+/* Chat Window */
+#chat-window{
+  flex:1;
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding:20px;
+  padding-bottom:120px;
+  scroll-behavior:smooth;
+  position:relative;
+  z-index:5;
+}
+
+#chat-window::-webkit-scrollbar{
+  width:5px;
+}
+
+#chat-window::-webkit-scrollbar-thumb{
+  background:var(--border);
+  border-radius:10px;
+}
+
+/* Messages */
+.msg{
+  display:flex;
+  gap:10px;
+  margin-bottom:18px;
+  animation:fadeUp .25s ease;
+}
+
+.msg.user{
+  flex-direction:row-reverse;
+}
+
+@keyframes fadeUp{
+  from{
+    opacity:0;
+    transform:translateY(10px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+.avatar{
+  width:36px;
+  height:36px;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+}
+
+.bot-av{
+  background:linear-gradient(135deg,var(--blue),var(--accent));
+}
+
+.user-av{
+  background:var(--card);
+  border:1px solid var(--border);
+}
+
+.bubble{
+  max-width:78%;
+  padding:13px 16px;
+  border-radius:16px;
+  line-height:1.7;
+  font-size:14px;
+}
+
+.bubble.bot{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-top-left-radius:4px;
+}
+
+.bubble.user{
+  background:linear-gradient(135deg,var(--blue),var(--blue2));
+  border-top-right-radius:4px;
+}
+
+/* Categories */
+.cat-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:12px;
+}
+
+.cat-btn{
+  background:var(--panel);
+  border:1px solid var(--border);
+  color:var(--text);
+  border-radius:12px;
+  padding:12px;
+  cursor:pointer;
+  transition:.2s;
+  text-align:left;
+  font-size:13px;
+}
+
+.cat-btn:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+  transform:translateY(-2px);
+}
+
+/* Question Buttons */
+.q-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:12px;
+}
+
+.q-btn{
+  background:var(--panel);
+  border:1px solid var(--border);
+  color:var(--text);
+  border-radius:10px;
+  padding:11px 14px;
+  cursor:pointer;
+  text-align:left;
+  transition:.2s;
+}
+
+.q-btn:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+}
+
+.back-btn{
+  margin-top:8px;
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--muted);
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* Answer Card */
+.answer-card{
+  background:var(--panel);
+  border-left:3px solid var(--accent);
+  border-radius:12px;
+  padding:14px;
+  margin-top:10px;
+  white-space:pre-line;
+}
+
+.answer-tag{
+  color:var(--accent);
+  font-size:11px;
+  margin-bottom:8px;
+  font-weight:700;
+}
+
+/* Input */
+#input-area{
+  position:relative;
+  z-index:10;
+  background:rgba(13,27,46,0.95);
+  border-top:1px solid var(--border);
+  padding:14px 18px;
+  display:flex;
+  gap:10px;
+}
+
+#user-input{
+  flex:1;
+  background:var(--card);
+  border:1px solid var(--border);
+  color:var(--text);
+  border-radius:12px;
+  padding:12px 16px;
+  outline:none;
+  font-size:14px;
+}
+
+#user-input:focus{
+  border-color:var(--accent);
+}
+
+#send-btn{
+  width:46px;
+  height:46px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  background:linear-gradient(135deg,var(--blue),var(--accent));
+  color:white;
+  font-size:18px;
+}
+
+/* Typing */
+.typing{
+  display:flex;
+  gap:5px;
+}
+
+.typing span{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--accent);
+  animation:bounce 1s infinite;
+}
+
+.typing span:nth-child(2){
+  animation-delay:.2s;
+}
+
+.typing span:nth-child(3){
+  animation-delay:.4s;
+}
+
+@keyframes bounce{
+  0%,80%,100%{
+    transform:translateY(0);
+    opacity:.5;
+  }
+  40%{
+    transform:translateY(-6px);
+    opacity:1;
+  }
+}
+
+/* Mobile */
+@media(max-width:600px){
+
+  .cat-grid{
+    grid-template-columns:1fr;
+  }
+
+  .bubble{
+    max-width:90%;
+  }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+  <div class="logo-ring">📡</div>
+
+  <div class="header-text">
+    <h1>JioAirFiber – Inventory Assistant</h1>
+    <p>ERP & JPW Support Bot</p>
+  </div>
+
+  <div class="status-dot">Online</div>
+
+</header>
+
+<div id="chat-window"></div>
+
+<div id="input-area">
+
+  <input
+    type="text"
+    id="user-input"
+    placeholder="Type your question..."
+    autocomplete="off"
+  >
+
+  <button id="send-btn">➤</button>
+
+</div>
+
+<script>
+
+const chatWindow = document.getElementById('chat-window');
+const userInput  = document.getElementById('user-input');
+const sendBtn    = document.getElementById('send-btn');
+
+let loginStep = 0;
+let employeeCode = '';
+let siteCode = '';
+
+/* Scroll */
+function scrollBottom(){
+
+  setTimeout(() => {
+
+    chatWindow.scrollTo({
+      top: chatWindow.scrollHeight,
+      behavior:'smooth'
+    });
+
+  },100);
+
+}
+
+/* Add Message */
+function addMsg(role, html){
+
+  const wrap = document.createElement('div');
+
+  wrap.className = `msg ${role}`;
+
+  const isBot = role === 'bot';
+
+  wrap.innerHTML = `
+    <div class="avatar ${isBot ? 'bot-av' : 'user-av'}">
+      ${isBot ? '🤖' : '👤'}
+    </div>
+
+    <div class="bubble ${role}">
+      ${html}
+    </div>
+  `;
+
+  chatWindow.appendChild(wrap);
+
+  scrollBottom();
+}
+
+/* Typing */
+function addTyping(){
+
+  const wrap = document.createElement('div');
+
+  wrap.className = 'msg bot';
+
+  wrap.id = 'typing';
+
+  wrap.innerHTML = `
+    <div class="avatar bot-av">🤖</div>
+
+    <div class="bubble bot">
+      <div class="typing">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  `;
+
+  chatWindow.appendChild(wrap);
+
+  scrollBottom();
+}
+
+function removeTyping(){
+
+  const t = document.getElementById('typing');
+
+  if(t) t.remove();
+
+}
+
+/* Welcome */
+function showWelcome(){
+
+  addMsg('bot', `
+    <strong style="font-size:16px;">
+      Welcome to JioAirFiber Inventory Assistant 👋
+    </strong>
+
+    <br><br>
+
+    Please enter your:
+
+    <br>• Employee Code (without P)
+    <br>• Site Code
+  `);
+
+}
+
+/* Categories */
+async function showCategories(){
+
+  const res = await fetch('/api/categories');
+
+  const cats = await res.json();
+
+  const grid = document.createElement('div');
+
+  grid.className = 'cat-grid';
+
+  cats.forEach(c => {
+
+    const btn = document.createElement('button');
+
+    btn.className = 'cat-btn';
+
+    btn.innerHTML = `${c.icon} ${c.name}`;
+
+    btn.onclick = () => onCategoryClick(c.id,c.name,c.icon);
+
+    grid.appendChild(btn);
+
+  });
+
+  const wrap = document.createElement('div');
+
+  wrap.className = 'msg bot';
+
+  wrap.innerHTML = `<div class="avatar bot-av">🤖</div>`;
+
+  const bubble = document.createElement('div');
+
+  bubble.className = 'bubble bot';
+
+  bubble.innerHTML = `
+    <strong>Select a category:</strong>
+  `;
+
+  bubble.appendChild(grid);
+
+  wrap.appendChild(bubble);
+
+  chatWindow.appendChild(wrap);
+
+  scrollBottom();
+}
+
+/* Category Click */
+async function onCategoryClick(id,name,icon){
+
+  addMsg('user', `${icon} ${name}`);
+
+  addTyping();
+
+  const res = await fetch(`/api/questions/${id}`);
+
+  const qs = await res.json();
+
+  removeTyping();
+
+  const list = document.createElement('div');
+
+  list.className = 'q-list';
+
+  qs.forEach(q => {
+
+    const btn = document.createElement('button');
+
+    btn.className = 'q-btn';
+
+    btn.textContent = q.question;
+
+    btn.onclick = () => onQuestionClick(q.id,q.question);
+
+    list.appendChild(btn);
+
+  });
+
+  const back = document.createElement('button');
+
+  back.className = 'back-btn';
+
+  back.textContent = '← Back';
+
+  back.onclick = showCategories;
+
+  list.appendChild(back);
+
+  const wrap = document.createElement('div');
+
+  wrap.className = 'msg bot';
+
+  wrap.innerHTML = `<div class="avatar bot-av">🤖</div>`;
+
+  const bubble = document.createElement('div');
+
+  bubble.className = 'bubble bot';
+
+  bubble.innerHTML = `
+    <strong>${name}</strong><br><br>
+    Select your question:
+  `;
+
+  bubble.appendChild(list);
+
+  wrap.appendChild(bubble);
+
+  chatWindow.appendChild(wrap);
+
+  scrollBottom();
+}
+
+/* Question Click */
+async function onQuestionClick(id,question){
+
+  addMsg('user',question);
+
+  addTyping();
+
+  const res = await fetch(`/api/answer/${id}`);
+
+  const data = await res.json();
+
+  removeTyping();
+
+  showAnswer(
+    data.question,
+    data.answer,
+    data.category
+  );
+}
+
+/* Show Answer */
+function showAnswer(question,answer,category){
+
+  addMsg('bot', `
+    <div class="answer-tag">
+      📂 ${category}
+    </div>
+
+    <strong>${question}</strong>
+
+    <div class="answer-card">
+      ${answer}
+    </div>
+  `);
+
+}
+
+/* Main Search */
+async function handleSearch(query){
+
+  if(!query.trim()) return;
+
+  addMsg('user',query);
+
+  userInput.value = '';
+
+  /* Employee Code */
+  if(loginStep === 0){
+
+    employeeCode = query;
+
+    loginStep = 1;
+
+    addTyping();
+
+    setTimeout(() => {
+
+      removeTyping();
+
+      addMsg('bot', `
+        Employee code saved ✅
+        <br><br>
+        Please enter your <strong>Site Code</strong>.
+      `);
+
+    },600);
+
+    return;
+  }
+
+  /* Site Code */
+  if(loginStep === 1){
+
+    siteCode = query;
+
+    loginStep = 2;
+
+    addTyping();
+
+    setTimeout(() => {
+
+      removeTyping();
+
+      const hour = new Date().getHours();
+
+      let greet = 'Good Evening';
+
+      if(hour < 12){
+        greet = 'Good Morning';
+      }
+      else if(hour < 17){
+        greet = 'Good Afternoon';
+      }
+
+      addMsg('bot', `
+        Hi ${greet}! 👋
+        <br><br>
+
+        Employee:
+        <strong>${employeeCode}</strong>
+
+        <br>
+
+        Site:
+        <strong>${siteCode}</strong>
+
+        <br><br>
+
+        How may I assist you today?
+      `);
+
+      showCategories();
+
+    },700);
+
+    return;
+  }
+
+  /* End Chat */
+  const lower = query.toLowerCase();
+
+  if(
+    lower.includes('bye') ||
+    lower.includes('thank you') ||
+    lower.includes('thanks') ||
+    lower.includes('exit')
+  ){
+
+    addTyping();
+
+    setTimeout(() => {
+
+      removeTyping();
+
+      addMsg('bot', `
+        Thank you for using
+        <strong>JioAirFiber Inventory Assistant</strong> 🙌
+      `);
+
+    },600);
+
+    return;
+  }
+
+  /* Search */
+  addTyping();
+
+  const res = await fetch('/api/search', {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json'
+    },
+    body:JSON.stringify({
+      query
+    })
+  });
+
+  const data = await res.json();
+
+  removeTyping();
+
+  if(data.found){
+
+    showAnswer(
+      data.result.question,
+      data.result.answer,
+      data.result.category
+    );
+
+  }else{
+
+    addMsg('bot', `
+      I couldn't find an exact match for
+      <strong>${query}</strong>.
+      <br><br>
+      Please browse categories below.
+    `);
+
+    showCategories();
+
+  }
+
+}
+
+/* Events */
+sendBtn.addEventListener('click', () => {
+  handleSearch(userInput.value);
+});
+
+userInput.addEventListener('keydown', e => {
+
+  if(e.key === 'Enter'){
+    handleSearch(userInput.value);
+  }
+
+});
+
+/* Init */
+showWelcome();
+
+</script>
+
+</body>
+</html>
